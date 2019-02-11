@@ -1,3 +1,3 @@
 # WangMinesweeper
 
-Classic game over minesweeper. Flag them all to win.
+Classic game of minesweeper. Flag them all to win.
