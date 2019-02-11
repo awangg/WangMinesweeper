@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
 
-// Andy Wang
+// Andy Wang - starter code by Michael Hopps
 
 public class MineSweeper extends JPanel {
     private Square[][] board;
