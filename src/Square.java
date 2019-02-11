@@ -1,21 +1,29 @@
 import java.awt.*;
+import java.awt.image.*;
 
 public class Square {
 
-    private boolean isMine, isRevealed, isFlagged;
+    private boolean isMine, isRevealed, isFlagged, isWrong;
     private int neighborMines;
     private int r, c;
     private Square[][] board;
 
-    public Square(boolean isMine, int r, int c, Square[][] board) {
+    /* Images */
+    private BufferedImage hidden, mine, flag, incorrect;
+
+    public Square(boolean isMine, int r, int c, Square[][] board, BufferedImage h, BufferedImage m, BufferedImage f, BufferedImage i) {
         this.isMine = isMine;
         this.r = r;
         this.c = c;
         this.isRevealed = false;
         this.isFlagged = false;
         this.board = board;
-        neighborMines = 0;  //you'll want to code this properly.
-                            //probably a numNeighbors method - probably similar to Life...
+        neighborMines = 0;
+
+        this.hidden = h;
+        this.mine = m;
+        this.flag = f;
+        this.incorrect = i;
     }
 
     public void calcNeighborMines(){
@@ -53,35 +61,38 @@ public class Square {
     }
 
     public void draw(Graphics2D g2){
+        g2.setFont(new Font("TimesRoman", Font.PLAIN, 14));
+        FontMetrics metrics = g2.getFontMetrics();
         int size = MineSweeper.SIZE;
+
         if (isRevealed) {
             if(isMine) {
-                g2.setColor(Color.RED);
+                g2.drawImage(mine, c * size, r* size, size, size, null);
             }else{
-                g2.setColor(Color.BLACK);
+                g2.setColor(new Color(189, 189, 189));
+                g2.fillRect(c * size, r * size, size, size);
             }
-            g2.fillRect(c * size, r * size, size, size);
 
-            if(!isMine) {
-                g2.setColor(Color.WHITE);
-                g2.drawString("" + neighborMines, c * size + (size/2 - 2), r * size + (size/2 + 2));
+            if(!isMine && neighborMines > 0) {
+                g2.setColor(Color.BLACK);
+                g2.drawString("" + neighborMines, c * size + size/2 - metrics.stringWidth("" + neighborMines)/2, r * size + 3*metrics.getHeight()/2);
+            }
+
+            if(isWrong) {
+                g2.drawImage(incorrect, c * size, r* size, size, size, null);
             }
         }else{
             if(isFlagged) {
-                g2.setColor(Color.ORANGE);
+                g2.drawImage(flag, c * size, r* size, size, size, null);
             }else {
-                g2.setColor(Color.GRAY);
+                g2.drawImage(hidden, c * size, r* size, size, size, null);
             }
-            g2.fillRect(c * size, r * size, size, size);
         }
         g2.setColor(Color.BLACK);
         g2.drawRect(c * size, r * size, size, size);
-
     }
 
     public void click(){
-        if(isFlagged) return;
-
         if(isMine) {
             isRevealed = true;
             /* Game Over */
@@ -118,7 +129,13 @@ public class Square {
     public void revealEntireBoard() {
         for(Square[] arr : board) {
             for(Square sq : arr) {
-                sq.isRevealed = true;
+                if(sq.isMine) {
+                    sq.isRevealed = true;
+                }
+                if(sq.isFlagged && !sq.isMine) {
+                    sq.isRevealed = true;
+                    sq.isWrong = true;
+                }
             }
         }
     }
@@ -129,5 +146,9 @@ public class Square {
 
     public boolean getIsMine() {
         return isMine;
+    }
+
+    public boolean getIsFlagged() {
+        return isFlagged;
     }
 }
